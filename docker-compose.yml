@@ -1,0 +1,117 @@
+x-common-environment: &common-environment
+  PUID: ${PUID}
+  PGID: ${PGID}
+  TZ: ${TZ}
+
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      <<: *common-environment
+      WEBUI_PORT: "8080"
+      QBITTORRENT_WEBUI_AUTH: "false"
+    volumes:
+      - ${MEDIA_POOL_DIR}:/media_pool
+      - ${QBITTORRENT_CONFIG_DIR}:/config
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      <<: *common-environment
+    volumes:
+      - ${MEDIA_POOL_DIR}:/media_pool
+      - ${RADARR_CONFIG_DIR}:/config
+    ports:
+      - "7878:7878"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      <<: *common-environment
+    volumes:
+      - ${MEDIA_POOL_DIR}:/media_pool
+      - ${SONARR_CONFIG_DIR}:/config
+    ports:
+      - "8989:8989"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      <<: *common-environment
+    volumes:
+      - ${MEDIA_POOL_DIR}:/media_pool
+      - ${LIDARR_CONFIG_DIR}:/config
+    ports:
+      - "8686:8686"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      <<: *common-environment
+    volumes:
+      - ${JACKETT_CONFIG_DIR}:/config
+    ports:
+      - "9117:9117"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  syncthing:
+    image: lscr.io/linuxserver/syncthing:latest
+    container_name: syncthing
+    environment:
+      <<: *common-environment
+    volumes:
+      - ${SYNCTHING_CONFIG_DIR}:/config
+      - ${MEDIA_POOL_DIR}:/media_pool
+    ports:
+      - "8384:8384"
+      - "22000:22000/tcp"
+      - "22000:22000/udp"
+      - "21027:21027/udp"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      <<: *common-environment
+    volumes:
+      - ${JELLYFIN_MEDIA_DIR}:/media
+      - ${MEDIA_POOL_DIR}:/media_pool
+      - ${JELLYFIN_CONFIG_DIR}:/config
+    ports:
+      - "8096:8096"
+    restart: unless-stopped
+    networks:
+      - media-network
+
+networks:
+  media-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.21.0.0/24"
+          gateway: "172.21.0.1"

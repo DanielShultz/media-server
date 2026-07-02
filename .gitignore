@@ -1,0 +1,17 @@
+# Local runtime env
+.env
+.env.*
+!.env.example
+
+# Logs and Syncthing noise
+*.log
+*.sync-conflict-*
+.stfolder
+
+# OS and editor clutter
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.cursor/
+.codex/
