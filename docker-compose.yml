@@ -65,6 +65,14 @@ services:
       - "9117:9117"
     restart: unless-stopped
 
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      LOG_LEVEL: info
+      TZ: ${TZ}
+    restart: unless-stopped
+
   syncthing:
     image: lscr.io/linuxserver/syncthing:latest
     container_name: syncthing
