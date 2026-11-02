@@ -1,0 +1,25 @@
+# Optional search-only relay; the regular media stack remains independent.
+services:
+  pac-connect:
+    image: media-server-pac-connect:0.1.0.0
+    build: ./pac-connect
+    environment:
+      PAC_URL: ${PAC_URL:?Set the original HTTPS PAC URL}
+      PAC_ALLOWED_HOSTS: ${PAC_ALLOWED_HOSTS:?Set the exact comma-separated host allowlist}
+    networks: [search_clients, search_egress]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 32
+    tmpfs: ["/tmp:size=16m,noexec,nosuid"]
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3128/health', timeout=3).close()"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+networks:
+  search_egress: {}

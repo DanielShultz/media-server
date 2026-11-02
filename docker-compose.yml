@@ -64,6 +64,7 @@ services:
     ports:
       - "9117:9117"
     restart: unless-stopped
+    networks: [default, search_clients]
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
@@ -72,6 +73,7 @@ services:
       LOG_LEVEL: info
       TZ: ${TZ}
     restart: unless-stopped
+    networks: [default, search_clients]
 
   syncthing:
     image: lscr.io/linuxserver/syncthing:latest
@@ -100,3 +102,7 @@ services:
     ports:
       - "8096:8096"
     restart: unless-stopped
+
+networks:
+  search_clients:
+    internal: true

@@ -58,6 +58,7 @@ docker compose down
 - `.env.example`
 - `AGENTS.md`
 - `VERSION`
+- `compose.search-proxy.yml` и исходники/тесты `pac-connect/`.
 
 Остаются локальными и не публикуются:
 
@@ -100,7 +101,44 @@ docker compose ps
 - `8384`
 - `8096`
 
-## Риски
+## Необязательный PAC-прокси поиска
+
+`compose.search-proxy.yml` добавляет ограниченный CONNECT-адаптер для
+Jackett/FlareSolverr. Перед запуском заполнить `PAC_URL` оригинальным HTTPS PAC
+и `PAC_ALLOWED_HOSTS` точными именами из разрешённого контура в локальном `.env`.
+Не публиковать PAC, proxy endpoints, cookies или рабочие конфиги.
+
+```bash
+docker compose -f docker-compose.yml -f compose.search-proxy.yml config --quiet
+docker compose -f docker-compose.yml -f compose.search-proxy.yml build pac-connect
+docker compose -f docker-compose.yml -f compose.search-proxy.yml up -d --no-deps pac-connect
+```
+
+Контейнер не публикует порт хоста. Сеть `search_clients` у Jackett/FlareSolverr
+объявлена в основном Compose: ежедневное обновление одного Jackett сохраняет
+её без override. Для подключения указать HTTP proxy `pac-connect:3128` в Jackett. Применять
+только после закрытого baseline текущих proxy-полей и проверки адаптера.
+Не менять qBittorrent/общие маршруты. Одного запуска контейнера для интеграции
+недостаточно; сохранённые сервисы должны перечитать сеть/настройки.
+
+Адаптер исполняет оригинальный PAC без host API: 64 MiB JS memory, 1.5 s CPU
+на eval, refresh раз в 300 s, последний пригодный снимок не старше 24 h.
+Разрешены CONNECT только к allowlist:443 и публичные IPv4. Для proxy-цепочек
+используются исключительно HTTPS endpoints с проверкой CA/SNI; ошибка не
+переходит в PROXY/DIRECT. Только исходный одиночный DIRECT разрешает прямой
+выход. Неподдержанные PAC helpers дают ошибку. HTTP plaintext отклоняется;
+CA MITM отсутствует. Это ограниченный адаптер, не универсальный браузерный PAC.
+
+Проверка: `/health` адаптера, metadata Test/search, затем Torznab и Radarr без
+grab/download. Нельзя считать caps восстановлением поиска. Откат: вернуть
+только исходные proxy-поля Jackett, перечитать его конфиг и остановить только
+адаптер; внутренняя клиентская сеть остаётся объявленной в основном Compose. Не восстанавливать
+полный конфиг поверх новых правок; не делать `compose down` всего стека.
+
+Локальные тесты после установки `pac-connect/requirements.txt`:
+`python -m unittest discover -s pac-connect -v`. Docker build запускает их тоже.
+
+## Общие риски
 
 - Образы используют тег `latest`.
 - Конфиги лежат вне репозитория, поэтому для переноса на другой сервер нужны корректные host paths.

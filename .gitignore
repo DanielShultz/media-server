@@ -15,3 +15,7 @@ Thumbs.db
 .vscode/
 .cursor/
 .codex/
+
+# Python relay artifacts
+__pycache__/
+*.pyc
