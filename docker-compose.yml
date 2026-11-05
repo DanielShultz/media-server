@@ -18,18 +18,6 @@ services:
       - "8080:8080"
     restart: unless-stopped
 
-  radarr:
-    image: lscr.io/linuxserver/radarr:latest
-    container_name: radarr
-    environment:
-      <<: *common-environment
-    volumes:
-      - ${MEDIA_POOL_DIR}:/media_pool
-      - ${RADARR_CONFIG_DIR}:/config
-    ports:
-      - "7878:7878"
-    restart: unless-stopped
-
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr

@@ -7,7 +7,6 @@
 Внутри стека:
 
 - `qbittorrent`
-- `radarr`
 - `sonarr`
 - `lidarr`
 - `jackett`
@@ -34,7 +33,6 @@ docker compose down
 ## Порты
 
 - `8080` - qBittorrent Web UI
-- `7878` - Radarr
 - `8989` - Sonarr
 - `8686` - Lidarr
 - `9117` - Jackett
@@ -75,7 +73,6 @@ docker compose down
 - `TZ`
 - `MEDIA_POOL_DIR`
 - `QBITTORRENT_CONFIG_DIR`
-- `RADARR_CONFIG_DIR`
 - `SONARR_CONFIG_DIR`
 - `LIDARR_CONFIG_DIR`
 - `JACKETT_CONFIG_DIR`
@@ -129,7 +126,7 @@ docker compose -f docker-compose.yml -f compose.search-proxy.yml up -d --no-deps
 выход. Неподдержанные PAC helpers дают ошибку. HTTP plaintext отклоняется;
 CA MITM отсутствует. Это ограниченный адаптер, не универсальный браузерный PAC.
 
-Проверка: `/health` адаптера, metadata Test/search, затем Torznab и Radarr без
+Проверка: `/health` адаптера, metadata Test/search, затем Torznab без
 grab/download. Нельзя считать caps восстановлением поиска. Откат: вернуть
 только исходные proxy-поля Jackett, перечитать его конфиг и остановить только
 адаптер; внутренняя клиентская сеть остаётся объявленной в основном Compose. Не восстанавливать
